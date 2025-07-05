@@ -2,9 +2,12 @@ package de.uni_hamburg.informatik.swt.se2.kino.ui.platzverkauf;
 
 import de.uni_hamburg.informatik.swt.se2.kino.entitaeten.Kinosaal;
 import de.uni_hamburg.informatik.swt.se2.kino.entitaeten.Vorstellung;
+import de.uni_hamburg.informatik.swt.se2.kino.wertobjekte.Geldbetrag;
 import de.uni_hamburg.informatik.swt.se2.kino.wertobjekte.Platz;
 
+
 import javax.swing.JPanel;
+import javax.swing.SwingUtilities;
 import java.util.Set;
 
 /**
@@ -16,7 +19,7 @@ import java.util.Set;
  * werden.
  * 
  * @author SE2-Team
- * @version SoSe 2024
+ * @version SoSe 2025
  */
 public class PlatzVerkaufsController
 {
@@ -24,6 +27,9 @@ public class PlatzVerkaufsController
     private Vorstellung _vorstellung;
 
     private PlatzVerkaufsView _view;
+    
+    // Der Barzahlungsdialog
+    private BarzahlungDialog _barzahlungDialog;
 
     /**
      * Initialisiert den PlatzVerkaufsController.
@@ -81,16 +87,27 @@ public class PlatzVerkaufsController
      */
     private void aktualisierePreisanzeige(Set<Platz> plaetze)
     {
-
         if (istVerkaufenMoeglich(plaetze))
         {
-            int preis = _vorstellung.getPreisFuerPlaetze(plaetze);
-            _view.getPreisLabel().setText("Gesamtpreis: " + preis + " Eurocent");
+            Geldbetrag preis = getPreisFuerPlaetze(plaetze);
+            _view.getPreisLabel().setText("Gesamtpreis: " + preis.getFormatiertenString() + " €");
         }
         else
         {
             _view.getPreisLabel().setText("Gesamtpreis:");
         }
+    }
+
+    /**
+     * Berechnet den Gesamtpreis für die ausgewählten Plätze.
+     * 
+     * @param plaetze Die ausgewählten Plätze
+     * @return Der Gesamtpreis als Geldbetrag
+     */
+    private Geldbetrag getPreisFuerPlaetze(Set<Platz> plaetze)
+    {
+        int preisInCent = _vorstellung.getPreisFuerPlaetze(plaetze);
+        return Geldbetrag.ausEurocent(preisInCent);
     }
 
     /**
@@ -155,8 +172,23 @@ public class PlatzVerkaufsController
     private void verkaufePlaetze(Vorstellung vorstellung)
     {
         Set<Platz> plaetze = _view.getPlatzplan().getAusgewaehltePlaetze();
-        vorstellung.verkaufePlaetze(plaetze);
-        aktualisierePlatzplan();
+        Geldbetrag preis = getPreisFuerPlaetze(plaetze);
+        
+        // Barzahlungsdialog anzeigen
+        if (_barzahlungDialog == null)
+        {
+            // Lazy initialization - erstelle Dialog nur wenn benötigt
+            _barzahlungDialog = new BarzahlungDialog(
+                (javax.swing.JFrame) SwingUtilities.getWindowAncestor(_view.getUIPanel()));
+        }
+        
+        boolean bezahlt = _barzahlungDialog.zeigeBarzahlung(preis);
+        
+        if (bezahlt)
+        {
+            vorstellung.verkaufePlaetze(plaetze);
+            aktualisierePlatzplan();
+        }
     }
 
     /**

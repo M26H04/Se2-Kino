@@ -3,6 +3,7 @@ package de.uni_hamburg.informatik.swt.se2.kino.entitaeten;
 import java.util.Set;
 
 import de.uni_hamburg.informatik.swt.se2.kino.wertobjekte.Datum;
+import de.uni_hamburg.informatik.swt.se2.kino.wertobjekte.Geldbetrag;
 import de.uni_hamburg.informatik.swt.se2.kino.wertobjekte.Platz;
 import de.uni_hamburg.informatik.swt.se2.kino.wertobjekte.Uhrzeit;
 
@@ -13,7 +14,7 @@ import de.uni_hamburg.informatik.swt.se2.kino.wertobjekte.Uhrzeit;
  * Vorstellung bereits verkauft wurden.
  * 
  * @author SE2-Team
- * @version SoSe 2024
+ * @version SoSe 2025
  */
 public class Vorstellung
 {
@@ -22,7 +23,7 @@ public class Vorstellung
     private Uhrzeit _anfangszeit;
     private Uhrzeit _endzeit;
     private Datum _datum;
-    private int _preis;
+    private Geldbetrag _preis;
     private boolean[][] _verkauft;
     private int _anzahlVerkauftePlaetze;
 
@@ -33,7 +34,8 @@ public class Vorstellung
      * @param film der Film, der in dieser Vorstellung gezeigt wird.
      * @param anfangszeit die Anfangszeit der Vorstellung.
      * @param endzeit die Endzeit der Vorstellung.
-     * @param preis der Verkaufspreis als int für Karten zu dieser Vorstellung.
+     * @param datum das Datum der Vorstellung.
+     * @param preis der Verkaufspreis in Eurocent für Karten zu dieser Vorstellung.
      * 
      * @require kinosaal != null
      * @require film != null
@@ -64,7 +66,7 @@ public class Vorstellung
         _anfangszeit = anfangszeit;
         _endzeit = endzeit;
         _datum = datum;
-        _preis = preis;
+        _preis = Geldbetrag.ausEurocent(preis);
         _verkauft = new boolean[kinosaal.getAnzahlReihen()][kinosaal
                 .getAnzahlSitzeProReihe()];
         _anzahlVerkauftePlaetze = 0;
@@ -127,6 +129,16 @@ public class Vorstellung
      */
     public int getPreis()
     {
+        return _preis.getEurocent();
+    }
+
+    /**
+     * Gibt den Verkaufspreis als Geldbetrag für Karten zu dieser Vorstellung zurück.
+     * 
+     * @ensure result != null
+     */
+    public Geldbetrag getPreisAlsGeldbetrag()
+    {
         return _preis;
     }
 
@@ -168,11 +180,11 @@ public class Vorstellung
     }
 
     /**
-     * Gibt den Gesamtpreis für die angegebenen Plätze zurücke
+     * Gibt den Gesamtpreis für die angegebenen Plätze zurück
      * 
      * @param plaetze die Sitzplätze.
      * 
-     * @return Gesamtpreis als int
+     * @return Gesamtpreis als int in Eurocent
      * 
      * @require plaetze != null
      * @require hatPlaetze(plaetze)
@@ -182,7 +194,25 @@ public class Vorstellung
         assert plaetze != null : "Vorbedingung verletzt: plaetze != null";
         assert hatPlaetze(plaetze) : "Vorbedingung verletzt: hatPlaetze(plaetze)";
 
-        return _preis * plaetze.size();
+        return _preis.multipliziere(plaetze.size()).getEurocent();
+    }
+
+    /**
+     * Gibt den Gesamtpreis für die angegebenen Plätze als Geldbetrag zurück
+     * 
+     * @param plaetze die Sitzplätze.
+     * 
+     * @return Gesamtpreis als Geldbetrag
+     * 
+     * @require plaetze != null
+     * @require hatPlaetze(plaetze)
+     */
+    public Geldbetrag getPreisFuerPlaetzeAlsGeldbetrag(Set<Platz> plaetze)
+    {
+        assert plaetze != null : "Vorbedingung verletzt: plaetze != null";
+        assert hatPlaetze(plaetze) : "Vorbedingung verletzt: hatPlaetze(plaetze)";
+
+        return _preis.multipliziere(plaetze.size());
     }
 
     /**
@@ -211,9 +241,9 @@ public class Vorstellung
      * 
      * @require platz != null
      * @require hatPlatz(platz)
-     * @require !istPlatzVerkauft(reihe, sitz)
+     * @require !istPlatzVerkauft(platz)
      * 
-     * @ensure istPlatzVerkauft(reihe, sitz)
+     * @ensure istPlatzVerkauft(platz)
      */
     public void verkaufePlatz(Platz platz)
     {
@@ -231,10 +261,10 @@ public class Vorstellung
      * @param platz der Sitzplatz.
      * 
      * @require platz != null
-     * @require hatPlatz(reihe, sitz)
-     * @require istPlatzVerkauft(reihe, sitz)
+     * @require hatPlatz(platz)
+     * @require istPlatzVerkauft(platz)
      * 
-     * @ensure !istPlatzVerkauft(reihe, sitz)
+     * @ensure !istPlatzVerkauft(platz)
      */
     public void stornierePlatz(Platz platz)
     {
