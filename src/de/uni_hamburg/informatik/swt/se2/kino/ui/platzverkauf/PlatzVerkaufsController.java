@@ -5,7 +5,6 @@ import de.uni_hamburg.informatik.swt.se2.kino.entitaeten.Vorstellung;
 import de.uni_hamburg.informatik.swt.se2.kino.wertobjekte.Geldbetrag;
 import de.uni_hamburg.informatik.swt.se2.kino.wertobjekte.Platz;
 
-
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 import java.util.Set;
@@ -28,8 +27,8 @@ public class PlatzVerkaufsController
 
     private PlatzVerkaufsView _view;
     
-    // Der Barzahlungsdialog
-    private BarzahlungDialog _barzahlungDialog;
+    // Der Verkaufsfenster-Controller
+    private VerkaufsfensterController _verkaufsfensterController;
 
     /**
      * Initialisiert den PlatzVerkaufsController.
@@ -37,6 +36,11 @@ public class PlatzVerkaufsController
     public PlatzVerkaufsController()
     {
         _view = new PlatzVerkaufsView();
+        
+        // Erstelle den VerkaufsfensterController im Konstruktor
+        // Lazy initialization erfolgt später, wenn das Parent-Window bekannt ist
+        _verkaufsfensterController = null;
+        
         registriereUIAktionen();
         // Am Anfang wird keine Vorstellung angezeigt:
         setVorstellung(null);
@@ -174,15 +178,15 @@ public class PlatzVerkaufsController
         Set<Platz> plaetze = _view.getPlatzplan().getAusgewaehltePlaetze();
         Geldbetrag preis = getPreisFuerPlaetze(plaetze);
         
-        // Barzahlungsdialog anzeigen
-        if (_barzahlungDialog == null)
+        // VerkaufsfensterController bei Bedarf erstellen (Lazy Initialization)
+        if (_verkaufsfensterController == null)
         {
-            // Lazy initialization - erstelle Dialog nur wenn benötigt
-            _barzahlungDialog = new BarzahlungDialog(
-                (javax.swing.JFrame) SwingUtilities.getWindowAncestor(_view.getUIPanel()));
+            javax.swing.JFrame parentFrame = (javax.swing.JFrame) SwingUtilities.getWindowAncestor(_view.getUIPanel());
+            _verkaufsfensterController = new VerkaufsfensterController(parentFrame);
         }
         
-        boolean bezahlt = _barzahlungDialog.zeigeBarzahlung(preis);
+        // Verkaufsfenster anzeigen und auf Ergebnis warten
+        boolean bezahlt = _verkaufsfensterController.zeigeBarzahlung(preis);
         
         if (bezahlt)
         {
