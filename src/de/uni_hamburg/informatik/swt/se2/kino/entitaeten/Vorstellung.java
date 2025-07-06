@@ -129,7 +129,7 @@ public class Vorstellung
      */
     public int getPreis()
     {
-        return _preis.getEurocent();
+        return _preis.getCentBetrag();
     }
 
     /**
@@ -194,7 +194,7 @@ public class Vorstellung
         assert plaetze != null : "Vorbedingung verletzt: plaetze != null";
         assert hatPlaetze(plaetze) : "Vorbedingung verletzt: hatPlaetze(plaetze)";
 
-        return _preis.multipliziere(plaetze.size()).getEurocent();
+        return _preis.multipliziere(plaetze.size()).getCentBetrag();
     }
 
     /**

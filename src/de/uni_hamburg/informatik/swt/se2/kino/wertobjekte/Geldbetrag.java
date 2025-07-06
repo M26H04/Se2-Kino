@@ -8,7 +8,8 @@ package de.uni_hamburg.informatik.swt.se2.kino.wertobjekte;
  */
 public final class Geldbetrag implements Comparable<Geldbetrag>
 {
-    private final int _eurocent;
+    private final int _euroAnteil;
+    private final int _centAnteil;
 
     /**
      * Wählt einen Geldbetrag aus.
@@ -17,10 +18,11 @@ public final class Geldbetrag implements Comparable<Geldbetrag>
      * 
      * @require eurocent >= 0
      */
-    private Geldbetrag(int eurocent)
+    Geldbetrag(int eurocent)
     {
         assert eurocent >= 0 : "Vorbedingung verletzt: eurocent >= 0";
-        _eurocent = eurocent;
+        _euroAnteil = eurocent / 100;
+        _centAnteil = eurocent % 100;
     }
 
     /**
@@ -71,12 +73,10 @@ public final class Geldbetrag implements Comparable<Geldbetrag>
     public static Geldbetrag ausString(String betragString)
     {
         assert betragString != null : "Vorbedingung verletzt: betragString != null";
-        assert istGueltigerGeldbetragString(betragString) : "Vorbedingung verletzt: Ungültiges Format";
-        
+        assert istGueltigerGeldbetragString(betragString) : "Vorbedingung verletzt: Ungültiges Format";        
         String[] teile = betragString.split(",");
         int euro = Integer.parseInt(teile[0]);
-        int cent = Integer.parseInt(teile[1]);
-        
+        int cent = Integer.parseInt(teile[1]);        
         return ausEuroUndCent(euro, cent);
     }
 
@@ -88,55 +88,38 @@ public final class Geldbetrag implements Comparable<Geldbetrag>
      */
     public static boolean istGueltigerGeldbetragString(String betragString)
     {
-        if (betragString == null) return false;
-        
-        // Prüfe Format "Zahl,ZweiZiffern"
-        if (!betragString.matches("\\d+,\\d{2}")) return false;
-        
-        // Prüfe ob der Betrag nicht zu groß ist
-        try {
+        if (betragString == null) 
+        {
+        	return false;
+        }
+        if (!betragString.matches("\\d+,\\d{2}"))
+        {
+        	return false;
+        }
+        try 
+        {
             String[] teile = betragString.split(",");
             int euro = Integer.parseInt(teile[0]);
-            int cent = Integer.parseInt(teile[1]);
-            
-            // Prüfe Überlauf
-            if (euro > Integer.MAX_VALUE / 100) return false;
-            if (cent >= 100) return false;
-            
+            int cent = Integer.parseInt(teile[1]);           
+            if (euro > Integer.MAX_VALUE / 100) 
+            {
+            	return false;
+            }
+            if (cent >= 100) 
+            {
+            	return false;           
+            }
             return true;
-        } catch (NumberFormatException e) {
+        } 
+        catch (NumberFormatException e) 
+        {
             return false;
         }
     }
-
-    /**
-     * Gibt den Betrag in Eurocent zurück.
-     * 
-     * @return Der Betrag in Eurocent
-     */
-    public int getEurocent()
+    
+    public int getCentBetrag()
     {
-        return _eurocent;
-    }
-
-    /**
-     * Gibt den Euro-Anteil des Betrags zurück.
-     * 
-     * @return Der Euro-Anteil
-     */
-    public int getEuro()
-    {
-        return _eurocent / 100;
-    }
-
-    /**
-     * Gibt den Cent-Anteil des Betrags zurück.
-     * 
-     * @return Der Cent-Anteil (0-99)
-     */
-    public int getCent()
-    {
-        return _eurocent % 100;
+    	return _euroAnteil * 100 + _centAnteil;
     }
 
     /**
@@ -153,8 +136,7 @@ public final class Geldbetrag implements Comparable<Geldbetrag>
     {
         assert anderer != null : "Vorbedingung verletzt: anderer != null";
         assert kannAddieren(anderer) : "Vorbedingung verletzt: Summe zu groß";
-        
-        return new Geldbetrag(_eurocent + anderer._eurocent);
+        return new Geldbetrag(getCentBetrag() + anderer.getCentBetrag());
     }
 
     /**
@@ -165,8 +147,11 @@ public final class Geldbetrag implements Comparable<Geldbetrag>
      */
     public boolean kannAddieren(Geldbetrag anderer)
     {
-        if (anderer == null) return false;
-        return (long)_eurocent + (long)anderer._eurocent <= Integer.MAX_VALUE;
+        if (anderer == null) 
+        {	
+        	return false;
+        }
+        return (long) getCentBetrag() + (long)anderer.getCentBetrag() <= Integer.MAX_VALUE;
     }
 
     /**
@@ -184,7 +169,7 @@ public final class Geldbetrag implements Comparable<Geldbetrag>
         assert anderer != null : "Vorbedingung verletzt: anderer != null";
         assert kannSubtrahieren(anderer) : "Vorbedingung verletzt: Ergebnis wäre negativ";
         
-        return new Geldbetrag(_eurocent - anderer._eurocent);
+        return new Geldbetrag(getCentBetrag() - anderer.getCentBetrag());
     }
 
     /**
@@ -195,8 +180,11 @@ public final class Geldbetrag implements Comparable<Geldbetrag>
      */
     public boolean kannSubtrahieren(Geldbetrag anderer)
     {
-        if (anderer == null) return false;
-        return _eurocent >= anderer._eurocent;
+        if (anderer == null) 
+        {
+        	return false;
+        }
+        return getCentBetrag() >= anderer.getCentBetrag();
     }
 
     /**
@@ -214,7 +202,7 @@ public final class Geldbetrag implements Comparable<Geldbetrag>
         assert faktor >= 0 : "Vorbedingung verletzt: faktor >= 0";
         assert kannMultiplizieren(faktor) : "Vorbedingung verletzt: Produkt zu groß";
         
-        return new Geldbetrag(_eurocent * faktor);
+        return new Geldbetrag(getCentBetrag() * faktor);
     }
 
     /**
@@ -225,9 +213,15 @@ public final class Geldbetrag implements Comparable<Geldbetrag>
      */
     public boolean kannMultiplizieren(int faktor)
     {
-        if (faktor < 0) return false;
-        if (faktor == 0) return true;
-        return _eurocent <= Integer.MAX_VALUE / faktor;
+        if (faktor < 0) 
+        {
+        	return false;
+        }
+        if (faktor == 0) 
+        {
+        	return true;
+        }
+        return getCentBetrag() <= Integer.MAX_VALUE / faktor;
     }
 
     /**
@@ -238,7 +232,7 @@ public final class Geldbetrag implements Comparable<Geldbetrag>
      */
     public String getFormatiertenString()
     {
-        return String.format("%d,%02d", getEuro(), getCent());
+        return String.format("%d,%02d", _euroAnteil, _centAnteil);
     }
 
     @Override
@@ -250,23 +244,28 @@ public final class Geldbetrag implements Comparable<Geldbetrag>
     @Override
     public boolean equals(Object obj)
     {
-        if (this == obj) return true;
-        if (!(obj instanceof Geldbetrag)) return false;
-        
+        if (this == obj) 
+        {
+        	return true;
+        }
+        if (!(obj instanceof Geldbetrag)) 
+        {
+        	return false;
+        }  
         Geldbetrag anderer = (Geldbetrag) obj;
-        return _eurocent == anderer._eurocent;
+        return getCentBetrag() == anderer.getCentBetrag();
     }
 
     @Override
     public int hashCode()
     {
-        return Integer.hashCode(_eurocent);
+        return Integer.hashCode(getCentBetrag());
     }
 
     @Override
     public int compareTo(Geldbetrag anderer)
     {
         assert anderer != null : "Vorbedingung verletzt: anderer != null";
-        return Integer.compare(_eurocent, anderer._eurocent);
+        return Integer.compare(getCentBetrag(), anderer.getCentBetrag());
     }
 }
