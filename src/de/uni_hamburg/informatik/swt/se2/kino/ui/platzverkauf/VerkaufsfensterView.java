@@ -6,177 +6,156 @@ import javax.swing.*;
 import java.awt.*;
 
 /**
- * Die View-Komponente des Verkaufsfensters für Barzahlungen.
- * Diese Klasse ist ausschließlich für die Darstellung der UI zuständig.
+ * Das Fenster für die Barzahlung.
+ * Zeigt an, wie viel zu zahlen ist und berechnet das Rückgeld.
  * 
  * @author SE2-Team
  * @version SoSe 2025
  */
 class VerkaufsfensterView
 {
+    // Das Fenster selbst
     private JDialog _dialog;
+    
+    // Die Anzeigefelder
     private JLabel _preisLabel;
-    private JTextField _gezahltField;
     private JLabel _fehlenderBetragLabel;
     private JLabel _restbetragLabel;
     private JLabel _fehlermeldungLabel;
+    
+    // Eingabe und Buttons
+    private JTextField _gezahltField;
     private JButton _okButton;
     private JButton _abbrechenButton;
 
     /**
-     * Initialisiert die View.
-     * 
-     * @param parent Das Elternfenster für den modalen Dialog
+     * Erstellt das Barzahlungsfenster.
      */
     public VerkaufsfensterView(JFrame parent)
     {
+        // Fenster erstellen
         _dialog = new JDialog(parent, "Barzahlung", true);
         _dialog.setDefaultCloseOperation(JDialog.DO_NOTHING_ON_CLOSE);
         
-        erstelleUI();
+        // Inhalt aufbauen
+        baueInhaltAuf();
         
-        _dialog.setSize(400, 300);
+        // Fenster konfigurieren
+        _dialog.setSize(400, 280);
         _dialog.setLocationRelativeTo(parent);
     }
 
     /**
-     * Erstellt die UI-Komponenten mit BorderLayout.
+     * Baut den kompletten Inhalt des Fensters auf.
      */
-    private void erstelleUI()
+    private void baueInhaltAuf()
     {
-        // Hauptpanel mit BorderLayout
-        JPanel hauptPanel = new JPanel(new BorderLayout());
+        // Hauptpanel mit grauem Hintergrund
+        JPanel hauptPanel = new JPanel();
+        hauptPanel.setLayout(new BorderLayout(0, 10));
         hauptPanel.setBackground(new Color(200, 210, 220));
+        hauptPanel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
         
-        // CENTER: Inhaltspanel
-        JPanel inhaltPanel = new JPanel();
-        inhaltPanel.setLayout(new BoxLayout(inhaltPanel, BoxLayout.Y_AXIS));
-        inhaltPanel.setBackground(new Color(200, 210, 220));
-        inhaltPanel.setBorder(BorderFactory.createEmptyBorder(20, 20, 10, 20));
+        // Formular in der Mitte
+        hauptPanel.add(erstelleFormular(), BorderLayout.CENTER);
         
-        // Formular-Panel
-        JPanel formularPanel = erstelleFormularPanel();
-        inhaltPanel.add(formularPanel);
+        // Fehlermeldung (anfangs unsichtbar)
+        _fehlermeldungLabel = erstelleFehlermeldung();
+        hauptPanel.add(_fehlermeldungLabel, BorderLayout.NORTH);
         
-        // Abstand
-        inhaltPanel.add(Box.createVerticalStrut(10));
-        
-        // Fehlermeldung
-        _fehlermeldungLabel = new JLabel("Bitte Betrag im Format XX,XX eingeben!");
-        _fehlermeldungLabel.setForeground(Color.WHITE);
-        _fehlermeldungLabel.setBackground(Color.RED);
-        _fehlermeldungLabel.setOpaque(true);
-        _fehlermeldungLabel.setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10));
-        _fehlermeldungLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
-        _fehlermeldungLabel.setVisible(false);
-        inhaltPanel.add(_fehlermeldungLabel);
-        
-        hauptPanel.add(inhaltPanel, BorderLayout.CENTER);
-        
-        // SOUTH: Button-Panel
-        JPanel buttonPanel = erstelleButtonPanel();
-        hauptPanel.add(buttonPanel, BorderLayout.SOUTH);
+        // Buttons unten
+        hauptPanel.add(erstelleButtonPanel(), BorderLayout.SOUTH);
         
         _dialog.setContentPane(hauptPanel);
     }
 
     /**
-     * Erstellt das Formular-Panel mit GridBagLayout für flexible Anordnung.
+     * Erstellt das Formular mit allen Eingabefeldern.
      */
-    private JPanel erstelleFormularPanel()
+    private JPanel erstelleFormular()
     {
-        JPanel panel = new JPanel(new GridBagLayout());
-        panel.setBackground(new Color(200, 210, 220));
-        GridBagConstraints gbc = new GridBagConstraints();
-        gbc.insets = new Insets(5, 5, 5, 5);
+        JPanel formular = new JPanel();
+        formular.setLayout(new GridLayout(4, 2, 10, 10));
+        formular.setBackground(new Color(200, 210, 220));
         
-        // Spalte 0: Labels (linksbündig)
-        gbc.gridx = 0;
-        gbc.gridy = 0;
-        gbc.anchor = GridBagConstraints.WEST;
-        gbc.fill = GridBagConstraints.NONE;
-        JLabel zuZahlenLabel = new JLabel("Zu zahlen:");
-        zuZahlenLabel.setFont(zuZahlenLabel.getFont().deriveFont(Font.BOLD));
-        panel.add(zuZahlenLabel, gbc);
+        // Zeile 1: Zu zahlen
+        formular.add(macheFettesLabel("Zu zahlen:"));
+        _preisLabel = new JLabel("0,00 €");
+        formular.add(_preisLabel);
         
-        // Spalte 1: Wert (mit festem Abstand)
-        gbc.gridx = 1;
-        gbc.gridy = 0;
-        gbc.anchor = GridBagConstraints.WEST;
-        gbc.ipadx = 50; // Fester Abstand nach links
-        _preisLabel = new JLabel("11,90 €");
-        panel.add(_preisLabel, gbc);
+        // Zeile 2: Gegeben
+        formular.add(macheFettesLabel("Gegeben:"));
+        _gezahltField = new JTextField();
+        formular.add(_gezahltField);
         
-        // Zeile 1: Gegeben
-        gbc.gridx = 0;
-        gbc.gridy = 1;
-        gbc.ipadx = 0;
-        JLabel gegebenLabel = new JLabel("Gegeben:");
-        gegebenLabel.setFont(gegebenLabel.getFont().deriveFont(Font.BOLD));
-        panel.add(gegebenLabel, gbc);
+        // Zeile 3: Fehlender Betrag
+        formular.add(macheFettesLabel("Fehlender Betrag:"));
+        _fehlenderBetragLabel = new JLabel("0,00 €");
+        formular.add(_fehlenderBetragLabel);
         
-        gbc.gridx = 1;
-        gbc.gridy = 1;
-        gbc.fill = GridBagConstraints.HORIZONTAL;
-        gbc.ipadx = 0;
-        _gezahltField = new JTextField(12);
-        _gezahltField.setPreferredSize(new Dimension(150, 25));
-        panel.add(_gezahltField, gbc);
-        
-        // Zeile 2: Fehlender Betrag
-        gbc.gridx = 0;
-        gbc.gridy = 2;
-        gbc.fill = GridBagConstraints.NONE;
-        JLabel fehlenderLabel = new JLabel("Fehlender Betrag:");
-        fehlenderLabel.setFont(fehlenderLabel.getFont().deriveFont(Font.BOLD));
-        panel.add(fehlenderLabel, gbc);
-        
-        gbc.gridx = 1;
-        gbc.gridy = 2;
-        gbc.ipadx = 50;
-        _fehlenderBetragLabel = new JLabel("11,90 €");
-        panel.add(_fehlenderBetragLabel, gbc);
-        
-        // Zeile 3: Rückgeld
-        gbc.gridx = 0;
-        gbc.gridy = 3;
-        gbc.ipadx = 0;
-        JLabel rueckgeldLabel = new JLabel("Rückgeld:");
-        rueckgeldLabel.setFont(rueckgeldLabel.getFont().deriveFont(Font.BOLD));
-        panel.add(rueckgeldLabel, gbc);
-        
-        gbc.gridx = 1;
-        gbc.gridy = 3;
-        gbc.ipadx = 50;
+        // Zeile 4: Rückgeld
+        formular.add(macheFettesLabel("Rückgeld:"));
         _restbetragLabel = new JLabel("0,00 €");
-        panel.add(_restbetragLabel, gbc);
+        formular.add(_restbetragLabel);
         
-        return panel;
+        return formular;
     }
 
     /**
-     * Erstellt das Button-Panel mit FlowLayout.
+     * Erstellt ein Label mit fetter Schrift.
+     */
+    private JLabel macheFettesLabel(String text)
+    {
+        JLabel label = new JLabel(text);
+        label.setFont(label.getFont().deriveFont(Font.BOLD));
+        return label;
+    }
+
+    /**
+     * Erstellt die rote Fehlermeldung.
+     */
+    private JLabel erstelleFehlermeldung()
+    {
+        JLabel fehler = new JLabel();
+        fehler.setForeground(Color.WHITE);
+        fehler.setBackground(Color.RED);
+        fehler.setOpaque(true);
+        fehler.setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10));
+        fehler.setHorizontalAlignment(SwingConstants.CENTER);
+        fehler.setVisible(false);
+        return fehler;
+    }
+
+    /**
+     * Erstellt das Panel mit den Buttons.
      */
     private JPanel erstelleButtonPanel()
     {
-        JPanel panel = new JPanel(new FlowLayout(FlowLayout.CENTER, 20, 10));
-        panel.setBackground(new Color(200, 210, 220));
+        JPanel buttonPanel = new JPanel();
+        buttonPanel.setLayout(new FlowLayout(FlowLayout.CENTER, 10, 0));
+        buttonPanel.setBackground(new Color(200, 210, 220));
         
+        // Buttons erstellen
         _abbrechenButton = new JButton("Abbrechen");
-        _abbrechenButton.setPreferredSize(new Dimension(100, 30));
-        
         _okButton = new JButton("OK");
-        _okButton.setPreferredSize(new Dimension(100, 30));
         _okButton.setEnabled(false);
         
-        panel.add(_abbrechenButton);
-        panel.add(_okButton);
+        // Größe setzen
+        Dimension buttonGroesse = new Dimension(100, 30);
+        _abbrechenButton.setPreferredSize(buttonGroesse);
+        _okButton.setPreferredSize(buttonGroesse);
         
-        return panel;
+        // Hinzufügen
+        buttonPanel.add(_abbrechenButton);
+        buttonPanel.add(_okButton);
+        
+        return buttonPanel;
     }
 
+    // ===== ÖFFENTLICHE METHODEN FÜR DEN CONTROLLER =====
+
     /**
-     * Zeigt den Dialog an.
+     * Zeigt das Fenster an.
      */
     public void zeigeDialog()
     {
@@ -185,7 +164,7 @@ class VerkaufsfensterView
     }
 
     /**
-     * Verbirgt den Dialog.
+     * Schließt das Fenster.
      */
     public void verbergeDialog()
     {
@@ -193,9 +172,7 @@ class VerkaufsfensterView
     }
 
     /**
-     * Setzt den anzuzeigenden Preis.
-     * 
-     * @param preis Der Preis als Geldbetrag
+     * Setzt den zu zahlenden Betrag.
      */
     public void setzePreis(Geldbetrag preis)
     {
@@ -203,9 +180,7 @@ class VerkaufsfensterView
     }
 
     /**
-     * Setzt den anzuzeigenden fehlenden Betrag.
-     * 
-     * @param betrag Der fehlende Betrag als Geldbetrag
+     * Zeigt an, wie viel noch fehlt.
      */
     public void setzeFehlenderBetrag(Geldbetrag betrag)
     {
@@ -213,9 +188,7 @@ class VerkaufsfensterView
     }
 
     /**
-     * Setzt den anzuzeigenden Restbetrag.
-     * 
-     * @param betrag Der Restbetrag als Geldbetrag
+     * Zeigt das Rückgeld an.
      */
     public void setzeRestbetrag(Geldbetrag betrag)
     {
@@ -223,9 +196,7 @@ class VerkaufsfensterView
     }
 
     /**
-     * Zeigt eine Fehlermeldung an.
-     * 
-     * @param meldung Die anzuzeigende Fehlermeldung
+     * Zeigt eine Fehlermeldung in rot an.
      */
     public void zeigeFehlermeldung(String meldung)
     {
@@ -234,7 +205,7 @@ class VerkaufsfensterView
     }
 
     /**
-     * Verbirgt die Fehlermeldung.
+     * Versteckt die Fehlermeldung wieder.
      */
     public void verbergeFehlermeldung()
     {
@@ -242,7 +213,7 @@ class VerkaufsfensterView
     }
 
     /**
-     * Leert das Eingabefeld für den gezahlten Betrag.
+     * Leert das Eingabefeld.
      */
     public void leereEingabefeld()
     {
@@ -250,9 +221,7 @@ class VerkaufsfensterView
     }
 
     /**
-     * Gibt den eingegebenen Text im Gezahlt-Feld zurück.
-     * 
-     * @return Der eingegebene Text
+     * Gibt zurück, was der Benutzer eingegeben hat.
      */
     public String getGezahltText()
     {
@@ -261,15 +230,13 @@ class VerkaufsfensterView
 
     /**
      * Aktiviert oder deaktiviert den OK-Button.
-     * 
-     * @param aktiv true zum Aktivieren, false zum Deaktivieren
      */
     public void setzeOkButtonAktiv(boolean aktiv)
     {
         _okButton.setEnabled(aktiv);
     }
 
-    // Getter für die Komponenten, die der Controller benötigt
+    // ===== GETTER FÜR DEN CONTROLLER =====
 
     public JButton getOkButton()
     {
