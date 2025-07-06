@@ -16,7 +16,6 @@ import java.awt.FlowLayout;
  */
 class PlatzVerkaufsView
 {
-    // Die Widgets, aus denen das UI sich zusammensetzt
     private JPanel _hauptPanel;
     private JLabel _preisLabel;
     private JButton _verkaufenButton;

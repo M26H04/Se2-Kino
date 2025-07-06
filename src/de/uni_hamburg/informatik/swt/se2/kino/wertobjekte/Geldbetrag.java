@@ -117,6 +117,10 @@ public final class Geldbetrag implements Comparable<Geldbetrag>
         }
     }
     
+    /**
+     * Gibt den Geldbetrag in Eurocent zurück
+     * @return den Betrag in Eurocent
+     */
     public int getCentBetrag()
     {
     	return _euroAnteil * 100 + _centAnteil;

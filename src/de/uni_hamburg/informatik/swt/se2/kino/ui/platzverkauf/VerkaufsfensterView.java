@@ -14,16 +14,11 @@ import java.awt.*;
  */
 class VerkaufsfensterView
 {
-    // Das Fenster selbst
     private JDialog _dialog;
-    
-    // Die Anzeigefelder
     private JLabel _preisLabel;
     private JLabel _fehlenderBetragLabel;
     private JLabel _restbetragLabel;
     private JLabel _fehlermeldungLabel;
-    
-    // Eingabe und Buttons
     private JTextField _gezahltField;
     private JButton _okButton;
     private JButton _abbrechenButton;
@@ -33,14 +28,9 @@ class VerkaufsfensterView
      */
     public VerkaufsfensterView(JFrame parent)
     {
-        // Fenster erstellen
         _dialog = new JDialog(parent, "Barzahlung", true);
         _dialog.setDefaultCloseOperation(JDialog.DO_NOTHING_ON_CLOSE);
-        
-        // Inhalt aufbauen
         baueInhaltAuf();
-        
-        // Fenster konfigurieren
         _dialog.setSize(400, 280);
         _dialog.setLocationRelativeTo(parent);
     }
@@ -50,22 +40,14 @@ class VerkaufsfensterView
      */
     private void baueInhaltAuf()
     {
-        // Hauptpanel mit grauem Hintergrund
         JPanel hauptPanel = new JPanel();
         hauptPanel.setLayout(new BorderLayout(0, 10));
         hauptPanel.setBackground(new Color(200, 210, 220));
         hauptPanel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
-        
-        // Formular in der Mitte
         hauptPanel.add(erstelleFormular(), BorderLayout.CENTER);
-        
-        // Fehlermeldung (anfangs unsichtbar)
         _fehlermeldungLabel = erstelleFehlermeldung();
         hauptPanel.add(_fehlermeldungLabel, BorderLayout.NORTH);
-        
-        // Buttons unten
         hauptPanel.add(erstelleButtonPanel(), BorderLayout.SOUTH);
-        
         _dialog.setContentPane(hauptPanel);
     }
 
@@ -77,27 +59,19 @@ class VerkaufsfensterView
         JPanel formular = new JPanel();
         formular.setLayout(new GridLayout(4, 2, 10, 10));
         formular.setBackground(new Color(200, 210, 220));
-        
-        // Zeile 1: Zu zahlen
         formular.add(macheFettesLabel("Zu zahlen:"));
         _preisLabel = new JLabel("0,00 €");
         formular.add(_preisLabel);
-        
-        // Zeile 2: Gegeben
         formular.add(macheFettesLabel("Gegeben:"));
         _gezahltField = new JTextField();
         formular.add(_gezahltField);
-        
-        // Zeile 3: Fehlender Betrag
         formular.add(macheFettesLabel("Fehlender Betrag:"));
         _fehlenderBetragLabel = new JLabel("0,00 €");
         formular.add(_fehlenderBetragLabel);
-        
-        // Zeile 4: Rückgeld
         formular.add(macheFettesLabel("Rückgeld:"));
         _restbetragLabel = new JLabel("0,00 €");
         formular.add(_restbetragLabel);
-        
+     
         return formular;
     }
 
@@ -134,25 +108,17 @@ class VerkaufsfensterView
         JPanel buttonPanel = new JPanel();
         buttonPanel.setLayout(new FlowLayout(FlowLayout.CENTER, 10, 0));
         buttonPanel.setBackground(new Color(200, 210, 220));
-        
-        // Buttons erstellen
         _abbrechenButton = new JButton("Abbrechen");
         _okButton = new JButton("OK");
         _okButton.setEnabled(false);
-        
-        // Größe setzen
         Dimension buttonGroesse = new Dimension(100, 30);
         _abbrechenButton.setPreferredSize(buttonGroesse);
         _okButton.setPreferredSize(buttonGroesse);
-        
-        // Hinzufügen
         buttonPanel.add(_abbrechenButton);
         buttonPanel.add(_okButton);
         
         return buttonPanel;
     }
-
-    // ===== ÖFFENTLICHE METHODEN FÜR DEN CONTROLLER =====
 
     /**
      * Zeigt das Fenster an.
@@ -236,23 +202,37 @@ class VerkaufsfensterView
         _okButton.setEnabled(aktiv);
     }
 
-    // ===== GETTER FÜR DEN CONTROLLER =====
-
+    /**
+     * Gibt den OkButton zurück
+     * @return der OkButton
+     */
     public JButton getOkButton()
     {
         return _okButton;
     }
 
+    /**
+     * Gibt den AbbrechenButton zurück
+     * @return der AbbrechenButton
+     */
     public JButton getAbbrechenButton()
     {
         return _abbrechenButton;
     }
 
+    /**
+     * Gibt das GezahltFeld zurück
+     * @return das GezahltFeld
+     */
     public JTextField getGezahltField()
     {
         return _gezahltField;
     }
 
+    /**
+     * Gibt den Dialog zurück
+     * @return den Dialog
+     */
     public JDialog getDialog()
     {
         return _dialog;

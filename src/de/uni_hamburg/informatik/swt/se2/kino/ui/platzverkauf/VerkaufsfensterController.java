@@ -38,13 +38,8 @@ public class VerkaufsfensterController
      */
     private void registriereUIAktionen()
     {
-        // OK-Button
         _view.getOkButton().addActionListener(e -> okGedrueckt());
-        
-        // Abbrechen-Button
         _view.getAbbrechenButton().addActionListener(e -> abbrechenGedrueckt());
-        
-        // Window-Closing-Event
         _view.getDialog().addWindowListener(new WindowAdapter()
         {
             @Override
@@ -53,8 +48,6 @@ public class VerkaufsfensterController
                 abbrechenGedrueckt();
             }
         });
-        
-        // Eingabefeld-Änderungen überwachen
         _view.getGezahltField().getDocument().addDocumentListener(new DocumentListener()
         {
             @Override
@@ -122,18 +115,12 @@ public class VerkaufsfensterController
     public boolean zeigeBarzahlung(Geldbetrag preis)
     {
         assert preis != null : "Vorbedingung verletzt: preis != null";
-        
         _preis = preis;
         _bezahlungErfolgreich = false;
-        
-        // View zurücksetzen
         reset();
         _view.setzePreis(preis);
-        _view.setzeFehlenderBetrag(preis); // Anfangs ist der volle Betrag fehlend
-        
-        // Dialog anzeigen (blockiert bis Dialog geschlossen wird)
+        _view.setzeFehlenderBetrag(preis); 
         _view.zeigeDialog();
-        
         return _bezahlungErfolgreich;
     }
 
@@ -144,13 +131,9 @@ public class VerkaufsfensterController
     private void eingabeGeaendert()
     {
         String eingabe = _view.getGezahltText();
-        
-        // Fehlermeldung zurücksetzen
-        _view.verbergeFehlermeldung();
-        
+        _view.verbergeFehlermeldung();       
         if (eingabe.isEmpty())
         {
-            // Leere Eingabe - zeige den vollen fehlenden Betrag
             _view.setzeFehlenderBetrag(_preis);
             _view.setzeRestbetrag(Geldbetrag.ausEurocent(0));
             _view.setzeOkButtonAktiv(false);
@@ -163,7 +146,6 @@ public class VerkaufsfensterController
                 
                 if (gezahlt.compareTo(_preis) >= 0)
                 {
-                    // Genug gezahlt - Rückgeld berechnen
                     Geldbetrag rueckgeld = gezahlt.subtrahiere(_preis);
                     _view.setzeFehlenderBetrag(Geldbetrag.ausEurocent(0));
                     _view.setzeRestbetrag(rueckgeld);
@@ -171,7 +153,6 @@ public class VerkaufsfensterController
                 }
                 else
                 {
-                    // Zu wenig gezahlt - fehlenden Betrag anzeigen
                     Geldbetrag fehlend = _preis.subtrahiere(gezahlt);
                     _view.setzeFehlenderBetrag(fehlend);
                     _view.setzeRestbetrag(Geldbetrag.ausEurocent(0));
@@ -188,7 +169,6 @@ public class VerkaufsfensterController
         }
         else
         {
-            // Ungültiges Format
             _view.zeigeFehlermeldung("Bitte Betrag im Format XX,XX eingeben!");
             _view.setzeFehlenderBetrag(_preis);
             _view.setzeRestbetrag(Geldbetrag.ausEurocent(0));

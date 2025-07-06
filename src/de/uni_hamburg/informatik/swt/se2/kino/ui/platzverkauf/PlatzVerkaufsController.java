@@ -27,7 +27,6 @@ public class PlatzVerkaufsController
 
     private PlatzVerkaufsView _view;
     
-    // Der Verkaufsfenster-Controller
     private VerkaufsfensterController _verkaufsfensterController;
 
     /**
@@ -36,10 +35,8 @@ public class PlatzVerkaufsController
     public PlatzVerkaufsController()
     {
         _view = new PlatzVerkaufsView();
-        
-        // Erstelle den VerkaufsfensterController im Konstruktor
-        // Lazy initialization erfolgt später, wenn das Parent-Window bekannt ist
-        _verkaufsfensterController = null;
+        javax.swing.JFrame parentFrame = (javax.swing.JFrame) SwingUtilities.getWindowAncestor(_view.getUIPanel());
+        _verkaufsfensterController = new VerkaufsfensterController(parentFrame);
         
         registriereUIAktionen();
         // Am Anfang wird keine Vorstellung angezeigt:
@@ -177,17 +174,7 @@ public class PlatzVerkaufsController
     {
         Set<Platz> plaetze = _view.getPlatzplan().getAusgewaehltePlaetze();
         Geldbetrag preis = getPreisFuerPlaetze(plaetze);
-        
-        // VerkaufsfensterController bei Bedarf erstellen (Lazy Initialization)
-        if (_verkaufsfensterController == null)
-        {
-            javax.swing.JFrame parentFrame = (javax.swing.JFrame) SwingUtilities.getWindowAncestor(_view.getUIPanel());
-            _verkaufsfensterController = new VerkaufsfensterController(parentFrame);
-        }
-        
-        // Verkaufsfenster anzeigen und auf Ergebnis warten
         boolean bezahlt = _verkaufsfensterController.zeigeBarzahlung(preis);
-        
         if (bezahlt)
         {
             vorstellung.verkaufePlaetze(plaetze);
