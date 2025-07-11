@@ -42,7 +42,7 @@ class VerkaufsfensterView
     private void baueInhaltAuf()
     {
         JPanel hauptPanel = new JPanel();
-        hauptPanel.setLayout(new BorderLayout(0, 10));
+        //hauptPanel.setLayout(new BorderLayout(0, 10));
         hauptPanel.setBackground(new Color(200, 210, 220));
         hauptPanel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
         hauptPanel.add(erstelleFormular(), BorderLayout.CENTER);
@@ -165,9 +165,9 @@ class VerkaufsfensterView
     /**
      * Zeigt eine Fehlermeldung in rot an.
      */
-    public void zeigeFehlermeldung(String meldung)
+    public void zeigeFehlermeldung(String fehler)
     {
-        _fehlermeldungLabel.setText(meldung);
+        _fehlermeldungLabel.setText(fehler);
         _fehlermeldungLabel.setVisible(true);
     }
 

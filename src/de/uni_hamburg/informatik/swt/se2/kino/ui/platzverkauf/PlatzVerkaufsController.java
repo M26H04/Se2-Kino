@@ -36,8 +36,8 @@ public class PlatzVerkaufsController
     public PlatzVerkaufsController()
     {
         _view = new PlatzVerkaufsView();
-        JFrame parentFrame = (JFrame) SwingUtilities.getWindowAncestor(_view.getUIPanel());
-        _verkaufsfensterController = new VerkaufsfensterController(parentFrame);
+      //  JFrame parentFrame = (JFrame) SwingUtilities.getWindowAncestor(_view.getUIPanel());
+        _verkaufsfensterController = new VerkaufsfensterController(null);
         
         registriereUIAktionen();
         // Am Anfang wird keine Vorstellung angezeigt:
