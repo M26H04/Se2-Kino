@@ -32,6 +32,7 @@ class VerkaufsfensterView
         _dialog.setDefaultCloseOperation(JDialog.DO_NOTHING_ON_CLOSE);
         baueInhaltAuf();
         _dialog.setSize(400, 280);
+        _dialog.setResizable(false);
         _dialog.setLocationRelativeTo(parent);
     }
 

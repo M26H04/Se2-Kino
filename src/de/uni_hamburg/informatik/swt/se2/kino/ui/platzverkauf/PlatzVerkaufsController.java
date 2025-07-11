@@ -5,6 +5,7 @@ import de.uni_hamburg.informatik.swt.se2.kino.entitaeten.Vorstellung;
 import de.uni_hamburg.informatik.swt.se2.kino.wertobjekte.Geldbetrag;
 import de.uni_hamburg.informatik.swt.se2.kino.wertobjekte.Platz;
 
+import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 import java.util.Set;
@@ -35,7 +36,7 @@ public class PlatzVerkaufsController
     public PlatzVerkaufsController()
     {
         _view = new PlatzVerkaufsView();
-        javax.swing.JFrame parentFrame = (javax.swing.JFrame) SwingUtilities.getWindowAncestor(_view.getUIPanel());
+        JFrame parentFrame = (JFrame) SwingUtilities.getWindowAncestor(_view.getUIPanel());
         _verkaufsfensterController = new VerkaufsfensterController(parentFrame);
         
         registriereUIAktionen();
