@@ -33,9 +33,7 @@ public class VerkaufsfensterController
         registriereUIAktionen();
     }
 
-    /**
-     * Registriert alle UI-Aktionen und Event-Listener.
-     */
+    
     private void registriereUIAktionen()
     {
         _view.getOkButton().addActionListener(e -> okGedrueckt());
@@ -105,7 +103,7 @@ public class VerkaufsfensterController
     }
 
     /**
-     * Zeigt den Dialog für den angegebenen Preis.
+     * 
      * 
      * @param preis Der zu zahlende Preis
      * @return true, wenn die Bezahlung erfolgreich war, false bei Abbruch
@@ -124,51 +122,43 @@ public class VerkaufsfensterController
         return _bezahlungErfolgreich;
     }
 
-    /**
-     * Wird aufgerufen, wenn die Eingabe im Gezahlt-Feld geändert wird.
-     * Validiert die Eingabe und aktualisiert die Anzeige entsprechend.
-     */
     private void eingabeGeaendert()
     {
         String eingabe = _view.getGezahltText();
-        _view.verbergeFehlermeldung();       
+        _view.verbergeFehlermeldung();
+        
         if (eingabe.isEmpty())
         {
+            
             _view.setzeFehlenderBetrag(_preis);
             _view.setzeRestbetrag(Geldbetrag.ausEurocent(0));
             _view.setzeOkButtonAktiv(false);
         }
         else if (Geldbetrag.istGueltigerGeldbetragString(eingabe))
         {
-            try
+          
+            Geldbetrag gezahlt = Geldbetrag.ausString(eingabe);
+            
+            if (gezahlt.compareTo(_preis) >= 0)
             {
-                Geldbetrag gezahlt = Geldbetrag.ausString(eingabe);
-                
-                if (gezahlt.compareTo(_preis) >= 0)
-                {
-                    Geldbetrag rueckgeld = gezahlt.subtrahiere(_preis);
-                    _view.setzeFehlenderBetrag(Geldbetrag.ausEurocent(0));
-                    _view.setzeRestbetrag(rueckgeld);
-                    _view.setzeOkButtonAktiv(true);
-                }
-                else
-                {
-                    Geldbetrag fehlend = _preis.subtrahiere(gezahlt);
-                    _view.setzeFehlenderBetrag(fehlend);
-                    _view.setzeRestbetrag(Geldbetrag.ausEurocent(0));
-                    _view.setzeOkButtonAktiv(false);
-                }
+               
+                Geldbetrag rueckgeld = gezahlt.subtrahiere(_preis);
+                _view.setzeFehlenderBetrag(Geldbetrag.ausEurocent(0));
+                _view.setzeRestbetrag(rueckgeld);
+                _view.setzeOkButtonAktiv(true);
             }
-            catch (Exception e)
+            else
             {
-                _view.zeigeFehlermeldung("Ungültige Eingabe!");
-                _view.setzeFehlenderBetrag(_preis);
+            
+                Geldbetrag fehlend = _preis.subtrahiere(gezahlt);
+                _view.setzeFehlenderBetrag(fehlend);
                 _view.setzeRestbetrag(Geldbetrag.ausEurocent(0));
                 _view.setzeOkButtonAktiv(false);
             }
         }
         else
         {
+            
             _view.zeigeFehlermeldung("Bitte Betrag im Format XX,XX eingeben!");
             _view.setzeFehlenderBetrag(_preis);
             _view.setzeRestbetrag(Geldbetrag.ausEurocent(0));
@@ -176,20 +166,14 @@ public class VerkaufsfensterController
         }
     }
 
-    /**
-     * Wird aufgerufen, wenn der OK-Button gedrückt wird.
-     * Schließt den Dialog und markiert die Bezahlung als erfolgreich.
-     */
+    
     private void okGedrueckt()
     {
         _bezahlungErfolgreich = true;
         _view.verbergeDialog();
     }
 
-    /**
-     * Wird aufgerufen, wenn der Abbrechen-Button gedrückt wird.
-     * Schließt den Dialog und markiert die Bezahlung als abgebrochen.
-     */
+   
     private void abbrechenGedrueckt()
     {
         _bezahlungErfolgreich = false;
